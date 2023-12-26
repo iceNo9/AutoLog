@@ -1,1 +1,45 @@
-language:zh_CN
+{
+  "log_index": 1080,
+  "join_time": 8,
+  "level": "INFO",
+  "apigithub_proxy": "https://github.srap.link/",
+  "move_excursion": 0,
+  "scaling": 1.0,
+  "path_crtscript": "test22233",
+  "stop": false,
+  "start": true,
+  "github_proxy": "https://ghproxy.com/",
+  "open_map": "m",
+  "up_border": 0.0,
+  "img": 0,
+  "fight_time": 9000,
+  "deficiency": false,
+  "sprint": false,
+  "move_division_excursion": 1.0,
+  "left_border": 0.0,
+  "picture_version": "20231001231617",
+  "auto_battle_persistence": 1,
+  "rawgithub_proxy": "https://ghproxy.com/",
+  "team_number": 1,
+  "fight_data": {
+    "data": [
+      "map_2-1_1",
+      "map_2-3_2",
+      "map_2-3_3",
+      "map_2-5_2",
+      "map_3-3_3",
+      "map_3-4_5",
+      "map_3-5_4",
+      "map_3-5_6"
+    ],
+    "day_time": "2023-12-24"
+  },
+  "real_width": 1920,
+  "test": false,
+  "proxies": "",
+  "language": "zh_CN",
+  "borderless": true,
+  "map_version": "20231001231617",
+  "debug": false,
+  "webhook_url": ""
+}
