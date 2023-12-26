@@ -1,8 +1,0 @@
-Log File Name:
-D:\PrintLog\DC\%Y%M%D-%h%m%s.log
-
-Upon Connect:
-[%Y%M%D_%h:%m:%s]
-
-On each line:
-[%h:%m:%s:%t]
