@@ -1,11 +1,17 @@
 {
-  "log_index": 1080,
+  "log_index": 1,
+  "path_work": "D:\\PrintLog\\test",
+  "path_save": "D:\\PrintLog\\test",
+  "path_flag_file": "D:\\Work\\.usual\\AutoLog_V1.2\\Scripts",
+  "list_legal_key": [
+    "EC",
+    "DC"
+  ],
   "join_time": 8,
   "level": "INFO",
   "apigithub_proxy": "https://github.srap.link/",
   "move_excursion": 0,
   "scaling": 1.0,
-  "path_crtscript": "test22233",
   "stop": false,
   "start": true,
   "github_proxy": "https://ghproxy.com/",

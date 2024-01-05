@@ -1,9 +1,7 @@
-# 这是一个示例 Python 脚本。
-
-# 按 Shift+F10 执行或将其替换为您的代码。
-# 按 双击 Shift 在所有地方搜索类、文件、工具窗口、操作和设置。
 import sys
 import config
+import fileoperation
+
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
@@ -14,7 +12,11 @@ if __name__ == '__main__':
     sra_config_obj = config.SRAData()
     config.load_all_config_data(config.SRAData)
 
-    print(sra_config_obj.path_crtscript)
+    fo_obj = fileoperation.FileOperate(sra_config_obj.path_work, sra_config_obj.path_save,
+                                       sra_config_obj.path_flag_file, sra_config_obj.list_legal_key)
+
+    fo_obj.copy_key_log(1)
+
     print("结束")
 
 # 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助

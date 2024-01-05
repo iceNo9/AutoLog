@@ -103,11 +103,11 @@ dir_log = "logs"
 data = read_json_file("config.json")
 VER = str(data.get("star_version", 0)) + "/" + str(data.get("picture_version", 0)) + "/" + str(
     data.get("map_version", 0))
-path_log = os.path.join(dir_log, _('日志文件.log'))
-fight_path_log = os.path.join(dir_log, _('战斗日志.log'))
+path_log = os.path.join(dir_log, _('运行日志文件.log'))
+# fight_path_log = os.path.join(dir_log, _('战斗日志.log'))
 level = data.get("level", "INFO")
 log = logger.bind(file=path_log)
-fight_log = logger.bind(file=fight_path_log)
+# fight_log = logger.bind(file=fight_path_log)
 log.remove()
 
 stdout_log = log.add(sys.stdout, level=level, colorize=True,
@@ -120,16 +120,16 @@ stdout_log = log.add(sys.stdout, level=level, colorize=True,
 log.add(path_log,
         format="{time:HH:mm:ss} - "
                "{level}\t| "
-               "{module}.{function}:{line} - " + f"<cyan>{VER}</cyan> - " + " {message}",
+               "{module}.{function}:{line} : " + " {message}",
         rotation="1 days", enqueue=True, serialize=False, encoding="utf-8", retention="10 days",
         filter=FileFilter(path_log))
 
-fight_log.add(fight_path_log,
-              format="{time:HH:mm:ss} - "
-                     "{level}\t| "
-                     "{module}.{function}:{line} - " + f"<cyan>{VER}</cyan> - " + " {message}",
-              rotation="1 days", enqueue=True, serialize=False, encoding="utf-8", retention="10 days",
-              filter=FileFilter(fight_path_log))
+# fight_log.add(fight_path_log,
+#               format="{time:HH:mm:ss} - "
+#                      "{level}\t| "
+#                      "{module}.{function}:{line} - " + f"<cyan>{VER}</cyan> - " + " {message}",
+#               rotation="1 days", enqueue=True, serialize=False, encoding="utf-8", retention="10 days",
+#               filter=FileFilter(fight_path_log))
 
 
 def set_log(header: str):

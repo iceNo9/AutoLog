@@ -12,6 +12,7 @@ from orjson import JSONDecodeError
 from exceptions import TypeError
 from log import log
 
+
 CONFIG_FILE_NAME = "config.json"
 
 USER_DATA_PREFIX = "data/user_data/"
@@ -289,10 +290,16 @@ class SRAData(metaclass=SRADataMeta):
     test: bool = False
     log_index: int = 0
     """日志序号"""
-    path_crtscript: str = "test"
-    """crt脚本路径"""
+    path_work: str = "D:\PrintLog"
+    """日志工作路径"""
+    path_save: str = "D:\PrintLog"
+    """日志保存路径"""
+    path_flag_file: str = "D:\Work\.usual\AutoLog_V1.2\Scripts\config.txt"
+    """flag控制文件路径"""
     language: str = "zh_CN"
     """语言"""
+    list_legal_key: list = ["DC", 'EC']
+    """关键词列表"""
 
     def __init__(self) -> None:
         ...
