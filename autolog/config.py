@@ -1,3 +1,4 @@
+import datetime
 import gettext
 import inspect
 import os
@@ -300,6 +301,8 @@ class SRAData(metaclass=SRADataMeta):
     """语言"""
     list_legal_key: list = ["DC", 'EC']
     """关键词列表"""
+    last_save: str = "2024-01-09 10:30:26"
+    """上次的保存日期"""
 
     def __init__(self) -> None:
         ...

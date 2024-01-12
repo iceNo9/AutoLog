@@ -20,12 +20,6 @@ class FileOperate:
         self.path_flag_file = rv_path_flag_file
         self.list_legal_key = rv_list_legal_key
 
-    def set_flag(self, rv_value):
-        with open(self.path_flag_file, "w") as file:
-            file.write(rv_value)
-            log.info("Flag Write {0}".format(rv_value))
-            pass
-
     def judge_folder_key_exist(self):
         for at_foldername in os.listdir(self.path_work):
             if os.path.isdir(os.path.join(self.path_work, at_foldername)):
@@ -100,8 +94,38 @@ class FileOperate:
             log.info("无法打开保存路径：{0},{1}".format(self.path_save, str(e)))
 
     def add_info(self):
-        at_path_info_file = os.os.path.join(self.path_info, "info.csv")
+        at_path_info_file = os.path.join(self.path_info, "info.csv")
         with open(at_path_info_file, "w") as file:
             pass
 
     def storage_log(self):
+        for at_foldername in os.listdir(self.path_save):
+            at_source_path = os.path.join(self.path_save, at_foldername)
+            if os.path.isdir(at_source_path):
+                if "_" in at_foldername:
+                    at_result = at_foldername.split("_")[0]
+                    at_date_obj = datetime.datetime.strptime(at_result, "%Y%m%d")
+                    foldername = at_date_obj.strftime("%Y年%m月%d日")
+                    # 检查同名文件夹
+                    full_path = os.path.join(self.path_save, foldername)
+                    try:
+                        # 如果文件夹不存在则创建新的文件夹
+                        if not os.path.exists(full_path):
+                            os.makedirs(full_path)
+                    except OSError as e:
+                        log.info("创建文件夹失败:{0},{1}".format(full_path, str(e)))
+                        return False
+
+                    # 拷贝执行
+                    at_target_path = os.path.join(full_path, at_foldername)
+                    shutil.copytree(at_source_path, at_target_path)
+                    log.info("已收集日志:{0},{1}".format(at_source_path, at_target_path))
+
+                    # 删除原文件
+                    try:
+                        shutil.rmtree(at_source_path)
+                        log.info(f"已删除文件夹:{at_source_path}")
+                    except OSError as e:
+                        log.info(f"删除文件夹{at_source_path}失败:{e}")
+                        return False
+        return True
