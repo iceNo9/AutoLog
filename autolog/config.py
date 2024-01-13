@@ -11,7 +11,7 @@ import orjson
 from orjson import JSONDecodeError
 
 from exceptions import TypeError
-from log import log
+from log import log_info
 
 
 CONFIG_FILE_NAME = "config.json"
