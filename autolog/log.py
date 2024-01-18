@@ -33,7 +33,3 @@ file_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
-
-# 定义一个函数，用于在线程中输出日志信息
-def log_info(rv_str):
-    logger.info(rv_str)

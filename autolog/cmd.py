@@ -21,9 +21,9 @@ class Cmd:
     timeout_ms: int = 500
     last_inputs_len: int = 0
 
-    def __init__(self, rv_queue: queue.Queue):
+    def __init__(self):
         # self.server_socket.setblocking(False)  # 设置为非阻塞模式
-        self._queue = rv_queue
+        self._queue = msg_queue.msgQueue
 
     def receive_message(self):
         while True:
@@ -98,13 +98,13 @@ class Cmd:
     def send_message(self):
         cur_inputs_len = len(self.inputs)
         if self.last_inputs_len != cur_inputs_len and cur_inputs_len == 0:
-            msg_queue.send_message(self._queue, "cmd", "fo", Protocol.CMD_NO_CONNECT.value)
+            msg_queue.send_message("cmd", "fo", Protocol.CMD_NO_CONNECT.value)
 
         self.last_inputs_len = cur_inputs_len
 
 
-def start(rv_queue):
-    obj_cmd = Cmd(rv_queue)
+def start():
+    obj_cmd = Cmd()
 
     th_rv_msg = threading.Thread(target=obj_cmd.receive_message)
     th_server = threading.Thread(target=obj_cmd.recive_server)

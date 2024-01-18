@@ -10,7 +10,7 @@ Copyright (c) 2023 by ${git_name_email}, All Rights Reserved.
 '''
 import traceback
 
-from log import log_info
+from log import logger
 
 
 class Exception(Exception):

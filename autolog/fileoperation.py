@@ -5,9 +5,10 @@ import sys
 import re
 import threading
 
+import config
 import msg_queue
 from common import Protocol
-from log import log_info
+from log import logger
 import shutil
 
 
@@ -21,12 +22,12 @@ class FileOperate:
     allow_add_info: bool = False
     save_executing: bool = False
 
-    def __init__(self, rv_queue, rv_path_work, rv_path_save, rv_path_flag_file, rv_list_legal_key):
+    def __init__(self, rv_path_work, rv_path_save, rv_path_flag_file, rv_list_legal_key):
         self.path_work = rv_path_work
         self.path_save = rv_path_save
         self.path_flag_file = rv_path_flag_file
         self.list_legal_key = rv_list_legal_key
-        self._queue = rv_queue
+        self._queue = msg_queue.msgQueue
 
     def judge_folder_key_exist(self):
         for at_foldername in os.listdir(self.path_work):
@@ -48,7 +49,7 @@ class FileOperate:
                 os.makedirs(full_path)
                 self.path_cur_info = full_path
         except OSError as e:
-            log_info("创建文件夹失败:{0},{1}".format(full_path, str(e)))
+            logger.info("创建文件夹失败:{0},{1}".format(full_path, str(e)))
             return False
 
         for at_foldername in os.listdir(self.path_work):
@@ -64,13 +65,14 @@ class FileOperate:
                             if not os.path.exists(full_path):
                                 os.makedirs(full_path)
                         except OSError as e:
-                            log_info("创建文件夹失败:{0},{1}".format(full_path, str(e)))
+                            logger.info("创建文件夹失败:{0},{1}".format(full_path, str(e)))
                             return False
                         # 拷贝执行
                         at_target_path = os.path.join(full_path, at_foldername)
                         shutil.copytree(at_source_path, at_target_path)
                         self.allow_add_info = True
-                        log_info("已保存日志:{0},{1}".format(at_source_path, at_target_path))
+                        config.config_obj.set_config("log_index", rv_index + 1)
+                        logger.info("已保存日志:{0},{1},{2}".format(at_source_path, at_target_path, rv_index + 1))
         return True
 
     def remove_key_log(self):
@@ -82,9 +84,9 @@ class FileOperate:
                     if re_result:  # 关键词存在
                         try:
                             shutil.rmtree(at_source_path)
-                            log_info(f"已删除文件夹:{at_source_path}")
+                            logger.info(f"已删除文件夹:{at_source_path}")
                         except OSError as e:
-                            log_info(f"删除文件夹{at_source_path}失败:{e}")
+                            logger.info(f"删除文件夹{at_source_path}失败:{e}")
                             return False
         return True
 
@@ -93,14 +95,14 @@ class FileOperate:
             # 调用系统默认程序打开该路径
             os.startfile(self.path_work)
         except Exception as e:
-            log_info("无法打开工作路径：{0},{1}".format(self.path_work, str(e)))
+            logger.info("无法打开工作路径：{0},{1}".format(self.path_work, str(e)))
 
     def open_save_dir(self):
         try:
             # 调用系统默认程序打开该路径
             os.startfile(self.path_save)
         except Exception as e:
-            log_info("无法打开保存路径：{0},{1}".format(self.path_save, str(e)))
+            logger.info("无法打开保存路径：{0},{1}".format(self.path_save, str(e)))
 
     def add_info(self):
         at_path_info_file = os.path.join(self.path_info, "info.csv")
@@ -122,20 +124,20 @@ class FileOperate:
                         if not os.path.exists(full_path):
                             os.makedirs(full_path)
                     except OSError as e:
-                        log_info("创建文件夹失败:{0},{1}".format(full_path, str(e)))
+                        logger.info("创建文件夹失败:{0},{1}".format(full_path, str(e)))
                         return False
 
                     # 拷贝执行
                     at_target_path = os.path.join(full_path, at_foldername)
                     shutil.copytree(at_source_path, at_target_path)
-                    log_info("已收集日志:{0},{1}".format(at_source_path, at_target_path))
+                    logger.info("已收集日志:{0},{1}".format(at_source_path, at_target_path))
 
                     # 删除原文件
                     try:
                         shutil.rmtree(at_source_path)
-                        log_info(f"已删除文件夹:{at_source_path}")
+                        logger.info(f"已删除文件夹:{at_source_path}")
                     except OSError as e:
-                        log_info(f"删除文件夹{at_source_path}失败:{e}")
+                        logger.info(f"删除文件夹{at_source_path}失败:{e}")
                         return False
         return True
 
@@ -143,7 +145,7 @@ class FileOperate:
         if rv_head == Protocol.FO_SAVE_FILE.value:
             if not self.copy_key_log(rv_content[0]):
                 self.wait_no_connect = False
-                msg_queue.send_message(self._queue, "fo", "ui", Protocol.UI_SAVE_ERROR.value)
+                msg_queue.send_message("fo", "ui", Protocol.UI_SAVE_ERROR.value)
             else:
                 self.wait_no_connect = True
                 self.save_executing = True
@@ -153,7 +155,7 @@ class FileOperate:
             self.open_save_dir()
         elif rv_head == Protocol.FO_STROAGE_FILE.value:
             self.storage_log()
-            msg_queue.send_message(self._queue, "fo", "ui", Protocol.UI_STROAGE_ERROR.value)
+            msg_queue.send_message("fo", "ui", Protocol.UI_STROAGE_ERROR.value)
         elif rv_head == Protocol.FO_SAVE_FILE_ADD_INFO.value:
             if self.allow_add_info:
                 self.add_info()
@@ -161,16 +163,16 @@ class FileOperate:
             if self.wait_no_connect():
                 if self.remove_key_log():
                     if self.save_executing:
-                        msg_queue.send_message(self._queue, "fo", "ui", Protocol.UI_SAVE_SUCCESS.value)
+                        msg_queue.send_message("fo", "ui", Protocol.UI_SAVE_SUCCESS.value)
                         self.save_executing = False
                     else:
-                        msg_queue.send_message(self._queue, "fo", "ui", Protocol.UI_DELETE_SUCCESS.value)
+                        msg_queue.send_message("fo", "ui", Protocol.UI_DELETE_SUCCESS.value)
                 else:
                     if self.save_executing:
-                        msg_queue.send_message(self._queue, "fo", "ui", Protocol.UI_SAVE_ERROR.value)
+                        msg_queue.send_message("fo", "ui", Protocol.UI_SAVE_ERROR.value)
                         self.save_executing = False
                     else:
-                        msg_queue.send_message(self._queue, "fo", "ui", Protocol.UI_DELETE_ERROR.value)
+                        msg_queue.send_message("fo", "ui", Protocol.UI_DELETE_ERROR.value)
 
     def receive_message(self):
         while True:
@@ -194,8 +196,8 @@ class FileOperate:
                 self._queue.put(message)  # 如果解析失败，将消息重新入列
 
 
-def start(rv_queue, rv_path_work, rv_path_save, rv_path_flag_file, rv_list_legal_key):
-    obj_fo = FileOperate(rv_queue, rv_path_work, rv_path_save, rv_path_flag_file, rv_list_legal_key)
+def start(rv_path_work, rv_path_save, rv_path_flag_file, rv_list_legal_key):
+    obj_fo = FileOperate(rv_path_work, rv_path_save, rv_path_flag_file, rv_list_legal_key)
 
     th_rv_msg = threading.Thread(target=obj_fo.receive_message)
     th_rv_msg.start()

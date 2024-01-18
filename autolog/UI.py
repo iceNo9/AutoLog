@@ -5,6 +5,7 @@ import threading
 import time
 from enum import Enum
 
+import config
 import msg_queue
 from common import Protocol
 
@@ -22,9 +23,10 @@ class Ui:
     input: int = 0
     prompt_id: Prompt = Prompt.PROMPT_NONE
     _event = threading.Event()
+    index = config.config_obj.get_config("log_index")
 
-    def __init__(self, rv_queue):
-        self._queue = rv_queue
+    def __init__(self):
+        self._queue = msg_queue.msgQueue
         self._event.set()
         self.function_list = [
             "功能选单：",
@@ -49,14 +51,19 @@ class Ui:
         else:
             self.input = num
 
+
+
     def show_prompt(self):
         if not self._event.is_set():
             print("操作执行中，请等待")
             self._event.wait()
             self._event.clear()
+        else:
+            if self.prompt_id == Prompt.PROMPT_INPUT_ERROR:
+                print("输入错误")
 
-        if self.prompt_id == Prompt.PROMPT_INPUT_ERROR:
-            print("输入错误")
+            print("当前日志序号:{0}".format(self.index))
+            self.show_fun_list()
 
     # 定义接收消息的函数
     def receive_message(self):
@@ -69,6 +76,7 @@ class Ui:
                     # 如果匹配，处理消息或执行其他操作
                     if parsed_message["head"] == Protocol.UI_SAVE_SUCCESS.value:
                         self.prompt_id = Prompt.PROMPT_SAVE_SUCCESEE
+                        self.index += 1
                     elif parsed_message["head"] == Protocol.UI_DELETE_SUCCESS.value:
                         self.prompt_id = Prompt.PROMPT_DELETE_SUCCESEE
                     elif parsed_message["head"] == Protocol.UI_STROAGE_SUCCESS.value:
@@ -90,28 +98,28 @@ class Ui:
     def send_message(self):
         if self.input == 1:
             # 保存日志
-            msg_queue.send_message(self._queue, "ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value, [0])
-            msg_queue.send_message(self._queue, "ui", "fo", Protocol.FO_SAVE_FILE.value)
-        elif self.input:
+            msg_queue.send_message("ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
+            msg_queue.send_message("ui", "fo", Protocol.FO_SAVE_FILE.value, [self.index])
+        elif self.input == 2:
             # 截断日志，发送消息给cmd
-            msg_queue.send_message(self._queue, "ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
-        elif self.input:
+            msg_queue.send_message("ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
+        elif self.input == 3:
             # 删除未保存的日志
-            msg_queue.send_message(self._queue, "ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
-            msg_queue.send_message(self._queue, "ui", "fo", Protocol.FO_DELETE_FILE.value)
-        elif self.input:
+            msg_queue.send_message("ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
+            msg_queue.send_message("ui", "fo", Protocol.FO_DELETE_FILE.value)
+        elif self.input == 4:
             # 保存日志且添加info
-            msg_queue.send_message(self._queue, "ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
-            msg_queue.send_message(self._queue, "ui", "fo", Protocol.FO_SAVE_FILE_ADD_INFO.value)
-        elif self.input:
+            msg_queue.send_message("ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
+            msg_queue.send_message("ui", "fo", Protocol.FO_SAVE_FILE_ADD_INFO.value)
+        elif self.input == 5:
             # 收纳日志
-            msg_queue.send_message(self._queue, "ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
-            msg_queue.send_message(self._queue, "ui", "fo", Protocol.FO_SAVE_FILE_ADD_INFO.value)
+            msg_queue.send_message("ui", "cmd", Protocol.CMD_CLOSE_ALL_CLIENT.value)
+            msg_queue.send_message("ui", "fo", Protocol.FO_SAVE_FILE_ADD_INFO.value)
         self.input = 0
 
 
-def start(rv_queue):
-    obj_ui = Ui(rv_queue)
+def start():
+    obj_ui = Ui()
 
     th_rv_msg = threading.Thread(target=obj_ui.receive_message)
     th_rv_msg.start()
@@ -119,6 +127,5 @@ def start(rv_queue):
     while True:
         os.system('cls')
         obj_ui.show_prompt()
-        obj_ui.show_fun_list()
         obj_ui.show_wait_input()
         obj_ui.send_message()

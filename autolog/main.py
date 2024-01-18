@@ -12,24 +12,17 @@ import fileoperation
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    at_log_index = 0
-
-    sra_config_obj = config.SRAData()
-    config.load_all_config_data(config.SRAData)
-
-    module_queue = queue.Queue(maxsize=32)
-
-    t1 = threading.Thread(target=UI.start, args=(module_queue,), name="th_ui")
+    print(datetime.datetime.today())
+    t1 = threading.Thread(target=UI.start, name="th_ui")
     t1.start()
 
-    t2 = threading.Thread(target=cmd.start, args=(module_queue,), name="th_cmd")
+    t2 = threading.Thread(target=cmd.start, name="th_cmd")
     t2.start()
 
-    t3 = threading.Thread(target=fileoperation.start, args=(module_queue,
-                                                            sra_config_obj.path_work,
-                                                            sra_config_obj.path_save,
-                                                            sra_config_obj.path_flag_file,
-                                                            sra_config_obj.list_legal_key,), name="th_cmd")
+    t3 = threading.Thread(target=fileoperation.start, args=(config.config_obj.path_work,
+                                                            config.config_obj.path_save,
+                                                            config.config_obj.path_flag_file,
+                                                            config.config_obj.list_legal_key,), name="th_cmd")
     t3.start()
 
     t1.join()

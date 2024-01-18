@@ -11,8 +11,7 @@ import orjson
 from orjson import JSONDecodeError
 
 from exceptions import TypeError
-from log import log_info
-
+from log import logger
 
 CONFIG_FILE_NAME = "config.json"
 
@@ -346,3 +345,6 @@ class SRAData(metaclass=SRADataMeta):
         """
         return getattr(self, key)
 
+
+config_obj = SRAData()
+load_all_config_data(SRAData)
